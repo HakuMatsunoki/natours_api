@@ -2,12 +2,30 @@ import type { RequestHandler } from "express";
 // import { ControllerFn } from "../common";
 import { AppError, catchAsync } from "../utils";
 
-export const signin: RequestHandler = catchAsync((_req, res, _next) => {
-  const rand = "0";
+import { User } from "../models/userModel.js";
 
-  if (rand === "0") throw new AppError("zero", 201);
+export const signup: RequestHandler = catchAsync(async (req, res, next) => {
+  const { name, email, passwd, passwdConfirm } = req.body;
+
+  if (passwd !== passwdConfirm) return next(new AppError("wrong pass", 400));
+
+  const newUser = await User.create({
+    name,
+    email,
+    passwd
+  });
+
+  if (!newUser) return next(new AppError("no user", 400));
+
+  // const url = `${req.protocol}://${req.get("host")}/me`;
+  // console.log(url);
+
+  // await new Email(newUser, url).sendWelcome();
+
+  // createSentToken(newUser, 201, req, res);
 
   res.status(200).json({
-    status: "success"
+    status: "success",
+    user: newUser
   });
 });
