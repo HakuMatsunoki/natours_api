@@ -1,0 +1,22 @@
+export enum Messages {
+  DIFF_PASSWD = "Passwords are not the same..",
+  DUPLICATED_ACCOUNT = "This account already exist..",
+  DUPLICATED_ITEM = "Item already added..",
+  ERROR_MAIL = "There was an error sending email. Please, try again later..",
+  EXPIRED_TOKEN = "Token has expired..",
+  INVALID_AUTH = "Invalid login or password..",
+  INVALID_DATA = "Please, send only valid data..",
+  INVALID_EMAIL = "Please provide a valid email..",
+  INVALID_PASSWD = "Password must be at least 8 characters long, contains symbols, numbers and capital letters..",
+  INVALID_TOKEN = "You are not logged in! Please log in to get access..",
+  LARGE_FILE = "File is too large..",
+  NO_DOCUMENT = "No document found with that id..",
+  NO_EMAIL = "User must have an email..",
+  NO_NAME = "User must have a name..",
+  NO_PASSWD = "User must have a password..",
+  NO_PASSWD_CONFIRM = "User must confirm a password..",
+  NO_USER = "This user does no longer exist..",
+  NOT_ALLOWED = "You do not have permission to perform this action..",
+  TOKEN_SENT = "Token sent to email..",
+  USER_CREATED = "Account successfully created.."
+}

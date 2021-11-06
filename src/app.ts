@@ -11,7 +11,7 @@ import morgan from "morgan";
 import xss from "xss-clean";
 
 import { serverConfigs } from "./configs";
-import { DevStatus, Codes } from "./constants";
+import { DevStatus, StatusCodes } from "./constants";
 import { globalErrorHandler } from "./controllers/errorController";
 import { userRouter } from "./routes";
 import { AppError, requestsLimitMsg, noUrl } from "./utils";
@@ -30,9 +30,9 @@ class App {
     this.app.use(
       "/api",
       rateLimit({
-        max: +serverConfigs.RATELIMIT_MAX,
-        windowMs: +serverConfigs.RATELIMIT_TIME * 60 * 60 * 1000,
-        message: requestsLimitMsg(+serverConfigs.RATELIMIT_TIME)
+        max: serverConfigs.RATELIMIT_MAX,
+        windowMs: serverConfigs.RATELIMIT_TIME * 60 * 60 * 1000,
+        message: requestsLimitMsg(serverConfigs.RATELIMIT_TIME)
       })
     );
 
@@ -100,7 +100,7 @@ class App {
     // app.use('/api/v1/bookings', bookingRouter);
 
     this.app.all("*", (req, _res, next) => {
-      next(new AppError(noUrl(req.originalUrl), Codes.notFound));
+      next(new AppError(noUrl(req.originalUrl), StatusCodes.NOT_FOUND));
     });
   }
 }

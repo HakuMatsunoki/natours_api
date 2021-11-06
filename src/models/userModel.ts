@@ -2,7 +2,8 @@ import bcrypt from "bcryptjs";
 // import crypto from "crypto";
 import { model, Schema } from "mongoose";
 
-import { ModelTableNames } from "../constants";
+import { appConfig } from "../configs";
+import { ModelTableNames, Messages } from "../constants";
 
 export interface UserObj {
   _id: string;
@@ -20,12 +21,12 @@ export interface UserObj {
 const userSchema: Schema = new Schema<UserObj>({
   name: {
     type: String,
-    required: [true, "User must have a name"],
+    required: [true, Messages.NO_NAME],
     trim: true
   },
   email: {
     type: String,
-    required: [true, "User must have an email"],
+    required: [true, Messages.NO_EMAIL],
     trim: true,
     lowercase: true,
     unique: true
@@ -41,8 +42,8 @@ const userSchema: Schema = new Schema<UserObj>({
   },
   passwd: {
     type: String,
-    required: [true, "User must have an password"],
-    minlength: [8, "password should be at least 8 characters long"],
+    required: [true, Messages.NO_PASSWD],
+    minlength: [8, Messages.INVALID_PASSWD],
     select: false
   },
   passwdChangedAt: Date,
@@ -58,7 +59,7 @@ const userSchema: Schema = new Schema<UserObj>({
 userSchema.pre("save", async function (next): Promise<void> {
   if (!this.isModified("passwd")) return next();
 
-  this.passwd = await bcrypt.hash(this.passwd, 12);
+  this.passwd = await bcrypt.hash(this.passwd, appConfig.BCRYPT_COST);
 
   next();
 });
