@@ -5,6 +5,7 @@ export enum Messages {
   ERROR_MAIL = "There was an error sending email. Please, try again later..",
   EXPIRED_TOKEN = "Token has expired..",
   INVALID_AUTH = "Invalid login or password..",
+  INVALID_CREDS = "Invalid credentials: ",
   INVALID_DATA = "Please, send only valid data..",
   INVALID_EMAIL = "Please provide a valid email..",
   INVALID_PASSWD = "Password must be at least 8 characters long, contains symbols, numbers and capital letters..",

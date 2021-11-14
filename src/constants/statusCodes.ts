@@ -3,7 +3,7 @@ export enum StatusCodes {
   CREATED = 201,
   NO_CONTENT = 204,
 
-  BED_REQUEST = 400,
+  BAD_REQUEST = 400,
   UNAUTH = 401,
   NOT_ALLOWED = 403,
   NOT_FOUND = 404,

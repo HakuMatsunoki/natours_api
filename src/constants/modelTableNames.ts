@@ -1,3 +1,4 @@
 export enum ModelTableNames {
-  USER = "User"
+  USER = "User",
+  AUTH = "Auth"
 }

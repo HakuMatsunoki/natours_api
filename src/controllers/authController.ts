@@ -1,33 +1,31 @@
 import type { RequestHandler } from "express";
-// import { ControllerFn } from "../common";
-import { AppError, catchAsync } from "../utils";
 
-import { Messages, StatusCodes } from "../constants";
-import { User } from "../models/userModel.js";
+// import { JWTPair } from "../common";
 
-export const signup: RequestHandler = catchAsync(async (req, res, next) => {
-  const { name, email, passwd, passwdConfirm } = req.body;
+import { StatusCodes } from "../constants";
 
-  if (passwd !== passwdConfirm)
-    return next(new AppError(Messages.DIFF_PASSWD, StatusCodes.BED_REQUEST));
+import { User, Auth } from "../models";
 
-  const newUser = await User.create({
-    name,
-    email,
-    passwd
+import { generateJWTPair } from "../services";
+import { catchAsync } from "../utils";
+
+export const signup: RequestHandler = catchAsync(async (req, res, _next) => {
+  const newUser = await User.create(req.body);
+
+  const { accessToken, refreshToken } = generateJWTPair(newUser.id);
+
+  await Auth.create({
+    accessToken,
+    refreshToken,
+    user: newUser.id
   });
-
-  // if (!newUser) return next(new AppError("no user", StatusCodes.BED_REQUEST));
-
-  // const url = `${req.protocol}://${req.get("host")}/me`;
-  // console.log(url);
-
-  // await new Email(newUser, url).sendWelcome();
-
-  // createSentToken(newUser, 201, req, res);
 
   res.status(StatusCodes.OK).json({
     status: "success",
-    user: newUser
+    user: newUser,
+    tokenPair: {
+      accessToken,
+      refreshToken
+    }
   });
 });

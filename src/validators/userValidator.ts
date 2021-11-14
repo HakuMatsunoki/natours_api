@@ -1,0 +1,9 @@
+import * as Joi from "joi";
+
+import { regexp } from "../configs";
+
+export const createUserValidator = Joi.object({
+  name: Joi.string().regex(regexp.NAME).trim().required(),
+  email: Joi.string().regex(regexp.EMAIL).trim().required(),
+  passwd: Joi.string().regex(regexp.PASSWD).trim().required()
+});

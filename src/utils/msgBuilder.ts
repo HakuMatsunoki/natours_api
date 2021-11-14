@@ -3,5 +3,5 @@ export const requestsLimitMsg = (time: number): string =>
     time !== 1 ? "s" : ""
   }..`;
 
-export const noUrl = (url: string): string =>
+export const noUrlMsg = (url: string): string =>
   `Can't find ${url} on this server..`;

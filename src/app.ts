@@ -14,7 +14,7 @@ import { serverConfigs } from "./configs";
 import { DevStatus, StatusCodes } from "./constants";
 import { globalErrorHandler } from "./controllers/errorController";
 import { userRouter } from "./routes";
-import { AppError, requestsLimitMsg, noUrl } from "./utils";
+import { AppError, requestsLimitMsg, noUrlMsg } from "./utils";
 
 class App {
   private static instance: App;
@@ -100,7 +100,7 @@ class App {
     // app.use('/api/v1/bookings', bookingRouter);
 
     this.app.all("*", (req, _res, next) => {
-      next(new AppError(noUrl(req.originalUrl), StatusCodes.NOT_FOUND));
+      next(new AppError(noUrlMsg(req.originalUrl), StatusCodes.NOT_FOUND));
     });
   }
 }
