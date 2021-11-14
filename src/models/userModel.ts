@@ -5,20 +5,21 @@ import { model, Schema } from "mongoose";
 import { appConfig } from "../configs";
 import { ModelTableNames, Messages } from "../constants";
 
-interface UserObj {
-  _id: string;
+export interface UserObj {
+  id: string;
   name: string;
   email: string;
   photo: string;
   role: string;
-  passwd: string;
-  passwdChangedAt?: Date | undefined;
-  passwdResetToken?: string | undefined;
-  passwdResetExpires?: Date | undefined;
-  active: boolean;
+  passwd: string | undefined;
+  passwdChangedAt: Date | undefined;
+  passwdResetToken: string | undefined;
+  passwdResetExpires: Date | undefined;
+  active: boolean | undefined;
+  checkPasswd: (candidatePasswd: string) => Promise<boolean>;
 }
 
-const userSchema: Schema = new Schema<UserObj>(
+const userSchema = new Schema<UserObj>(
   {
     name: {
       type: String,
@@ -66,5 +67,11 @@ userSchema.pre("save", async function (next): Promise<void> {
 
   next();
 });
+
+userSchema.methods.checkPasswd = async function (
+  candidatePasswd: string
+): Promise<boolean> {
+  return await bcrypt.compare(candidatePasswd, this.passwd);
+};
 
 export const User = model<UserObj>(ModelTableNames.USER, userSchema);

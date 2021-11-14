@@ -1,9 +1,13 @@
 import * as jwt from "jsonwebtoken";
 
-import { JWTPair } from "../common";
 import { appConfig } from "../configs";
 import { Messages, StatusCodes } from "../constants";
 import { AppError } from "../utils";
+
+export interface JWTPair {
+  accessToken: string;
+  refreshToken: string;
+}
 
 export const generateJWTPair = (id: string): JWTPair => {
   const accessToken = jwt.sign({ id }, appConfig.ACCESS_TOKEN_SECRET, {

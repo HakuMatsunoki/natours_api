@@ -1,14 +1,7 @@
-// import { Request, Response, NextFunction } from "express";
+import { Request } from "express";
 
-// export interface RequestHandler {
-//   (req: Request, res: Response, next: NextFunction): void;
-// }
+import { UserObj } from "../models";
 
-// export interface ErrorHandler {
-//   (err: any, req: Request, res: Response, next?: NextFunction): void;
-// }
-
-export interface JWTPair {
-  accessToken: string;
-  refreshToken: string;
+export interface RequestExt extends Request {
+  user?: UserObj;
 }
