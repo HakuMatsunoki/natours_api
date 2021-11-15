@@ -27,7 +27,7 @@ export const generateJWTPair = (id: string): JWTPair => {
 export const verifyToken = (
   token: string,
   access: boolean = true
-): string | jwt.JwtPayload | void => {
+): string | jwt.JwtPayload => {
   try {
     const secret = access
       ? appConfig.ACCESS_TOKEN_SECRET

@@ -1,9 +1,11 @@
-import type { RequestHandler } from "express";
+import { RequestHandler } from "express";
+import { JwtPayload } from "jsonwebtoken";
 
 import { RequestExt } from "../common";
-import { UserRoles, Messages, StatusCodes } from "../constants";
-import { User, UserObj } from "../models";
-import { AppError, userNameHandler } from "../utils";
+import { UserRoles, Messages, StatusCodes, TokenNames } from "../constants";
+import { Auth, AuthObject, User, UserObject } from "../models";
+import { verifyToken } from "../services";
+import { AppError, catchAsync, userNameHandler } from "../utils";
 import { createUserValidator, emailValidator } from "../validators";
 
 export const isUserDataValid: RequestHandler = (req, _res, next) => {
@@ -23,38 +25,88 @@ export const isUserDataValid: RequestHandler = (req, _res, next) => {
   next();
 };
 
-export const isNotEmailExist: RequestHandler = async (req, _res, next) => {
-  const { email } = req.body;
+export const isNotEmailExist: RequestHandler = catchAsync(
+  async (req, _res, next) => {
+    const { email } = req.body;
 
-  const userExist: boolean = !!(await User.findOne({ email }));
+    const userExist: boolean = !!(await User.findOne({ email }));
 
-  if (userExist)
-    return next(
-      new AppError(Messages.DUPLICATED_ACCOUNT, StatusCodes.CONFLICT)
+    if (userExist)
+      return next(
+        new AppError(Messages.DUPLICATED_ACCOUNT, StatusCodes.CONFLICT)
+      );
+
+    next();
+  }
+);
+
+export const isAuthenticated: RequestHandler = catchAsync(
+  async (req: RequestExt, _res, next) => {
+    const { passwd, email } = req.body;
+    const { error } = emailValidator.validate({ email, passwd });
+
+    if (error)
+      return next(new AppError(Messages.INVALID_AUTH, StatusCodes.BAD_REQUEST));
+
+    const user: UserObject | null = await User.findOne({ email }).select(
+      "+passwd"
     );
 
-  next();
-};
+    if (!user || !(await user.checkPasswd(passwd))) {
+      return next(new AppError(Messages.INVALID_AUTH, StatusCodes.UNAUTH));
+    }
 
-export const isAuthenticated: RequestHandler = async (
-  req: RequestExt,
-  _res,
-  next
-) => {
-  const { passwd, email } = req.body;
-  const { error } = emailValidator.validate({ email, passwd });
+    user.passwd = undefined;
+    req.user = user;
 
-  if (error)
-    return next(new AppError(Messages.INVALID_AUTH, StatusCodes.BAD_REQUEST));
-
-  const user: UserObj | null = await User.findOne({ email }).select("+passwd");
-
-  if (!user || !(await user.checkPasswd(passwd))) {
-    return next(new AppError(Messages.INVALID_AUTH, StatusCodes.UNAUTH));
+    next();
   }
+);
 
-  user.passwd = undefined;
-  req.user = user;
+export const protectRoute: RequestHandler = catchAsync(
+  async (req: RequestExt, _res, next) => {
+    const accessToken: string | undefined = req.get(TokenNames.AUTH);
 
-  next();
-};
+    if (!accessToken)
+      return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));
+
+    const { id } = verifyToken(accessToken) as JwtPayload;
+
+    const authObject: AuthObject = await Auth.findOne({
+      accessToken
+    }).populate("user");
+
+    const userObject = authObject?.user as UserObject | void;
+
+    if (!id || !userObject || userObject.id !== id)
+      return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));
+
+    req.user = userObject;
+
+    next();
+  }
+);
+
+export const checkRefresh: RequestHandler = catchAsync(
+  async (req: RequestExt, _res, next) => {
+    const refreshToken: string | undefined = req.get(TokenNames.AUTH);
+
+    if (!refreshToken)
+      return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));
+
+    const { id } = verifyToken(refreshToken, false) as JwtPayload;
+
+    const authObject: AuthObject | null = await Auth.findOne({
+      refreshToken
+    }).populate("user");
+
+    const userObject = authObject?.user as UserObject | void;
+
+    if (!id || !userObject || userObject.id !== id)
+      return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));
+
+    req.user = userObject;
+
+    next();
+  }
+);

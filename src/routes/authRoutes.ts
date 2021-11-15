@@ -12,4 +12,8 @@ router.post(
   authController.signup
 );
 
-export { router as userRouter };
+router.post("/login", authMiddleware.isAuthenticated, authController.login);
+router.post("/logout", authMiddleware.protectRoute, authController.logout);
+router.post("/refresh", authMiddleware.checkRefresh, authController.refresh);
+
+export { router as authRouter };

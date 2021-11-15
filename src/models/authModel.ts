@@ -1,11 +1,12 @@
 import { model, Schema } from "mongoose";
 
 import { ModelTableNames } from "../constants";
+import { UserObject } from "./userModel";
 
-interface AuthObject {
+export interface AuthObject {
   accessToken: string;
   refreshToken: string;
-  user: Schema.Types.ObjectId;
+  user: Schema.Types.ObjectId | UserObject;
 }
 
 const authSchema: Schema = new Schema<AuthObject>(

@@ -1,7 +1,7 @@
 import { Request } from "express";
 
-import { UserObj } from "../models";
+import { UserObject } from "../models";
 
 export interface RequestExt extends Request {
-  user?: UserObj;
+  user?: UserObject | string;
 }

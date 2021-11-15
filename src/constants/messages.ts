@@ -18,6 +18,7 @@ export enum Messages {
   NO_PASSWD_CONFIRM = "User must confirm a password..",
   NO_USER = "This user does no longer exist..",
   NOT_ALLOWED = "You do not have permission to perform this action..",
+  SUCCESS = "Success..",
   TOKEN_SENT = "Token sent to email..",
   USER_CREATED = "Account successfully created.."
 }
