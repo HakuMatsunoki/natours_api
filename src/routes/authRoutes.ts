@@ -14,6 +14,11 @@ router.post(
 
 router.post("/login", authMiddleware.isAuthenticated, authController.login);
 router.post("/logout", authMiddleware.protectRoute, authController.logout);
+router.post(
+  "/logoutAll",
+  authMiddleware.protectRoute,
+  authController.logoutAll
+);
 router.post("/refresh", authMiddleware.checkRefresh, authController.refresh);
 router.post(
   "/forgotPasswd",

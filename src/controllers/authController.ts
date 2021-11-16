@@ -50,6 +50,18 @@ export const logout: RequestHandler = catchAsync(async (req, res, _next) => {
   });
 });
 
+export const logoutAll: RequestHandler = catchAsync(
+  async (req: RequestExt, res, _next) => {
+    const user = req.user as UserDoc;
+
+    await Auth.deleteMany({ user: user.id });
+
+    res.status(StatusCodes.OK).json({
+      status: Messages.SUCCESS
+    });
+  }
+);
+
 export const refresh: RequestHandler = catchAsync(
   async (req: RequestExt, res, _next) => {
     const refreshToken: string | undefined = req.get(TokenNames.AUTH);
