@@ -147,3 +147,14 @@ export const checkRefresh: RequestHandler = catchAsync(
     next();
   }
 );
+
+export const restrictTo =
+  (...userRoles: Array<string>): RequestHandler =>
+  (req: RequestExt, _res, next) => {
+    const user = req.user as UserDoc;
+
+    if (!userRoles.includes(user.role))
+      return next(new AppError(Messages.NOT_ALLOWED, StatusCodes.NOT_ALLOWED));
+
+    next();
+  };

@@ -10,5 +10,18 @@ export const appConfig = {
     : 32,
   PASSWD_RESET_TOKEN_EXPIRES_IN: process.env.PASSWD_RESET_TOKEN_EXPIRES_IN
     ? +process.env.PASSWD_RESET_TOKEN_EXPIRES_IN
-    : 5
+    : 5,
+  TOUR_NAME_MAX_LENGTH: process.env.TOUR_NAME_MAX_LENGTH
+    ? +process.env.TOUR_NAME_MAX_LENGTH
+    : 40,
+  TOUR_NAME_MIN_LENGTH: process.env.TOUR_NAME_MIN_LENGTH
+    ? +process.env.TOUR_NAME_MIN_LENGTH
+    : 10,
+  DEFAULT_USER_AVATAR: process.env.DEFAULT_USER_AVATAR || "default.jpg",
+  USER_PASSWD_MIN_LENGTH: process.env.USER_PASSWD_MIN_LENGTH
+    ? +process.env.USER_PASSWD_MIN_LENGTH
+    : 8,
+  RATING_MIN: process.env.RATING_MIN ? +process.env.RATING_MIN : 1,
+  RATING_MAX: process.env.RATING_MAX ? +process.env.RATING_MAX : 5,
+  RATING_DEFAULT: process.env.RATING_DEFAULT ? +process.env.RATING_DEFAULT : 4.5
 };

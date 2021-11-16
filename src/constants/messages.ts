@@ -16,6 +16,7 @@ export enum Messages {
   NO_NAME = "User must have a name..",
   NO_PASSWD = "User must have a password..",
   NO_PASSWD_CONFIRM = "User must confirm a password..",
+  NO_TOUR_NAME = "Tour must have a name..",
   NO_USER = "This user does no longer exist..",
   NOT_ALLOWED = "You do not have permission to perform this action..",
   SUCCESS = "Success..",

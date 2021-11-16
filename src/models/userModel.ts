@@ -3,7 +3,7 @@ import crypto from "crypto";
 import { model, Schema, Document } from "mongoose";
 
 import { appConfig } from "../configs";
-import { ModelTableNames, Messages } from "../constants";
+import { ModelTableNames, UserRoles } from "../constants";
 
 export interface UserObject {
   // id: string;
@@ -26,29 +26,29 @@ const userSchema = new Schema<UserObject>(
   {
     name: {
       type: String,
-      required: [true, Messages.NO_NAME],
+      required: true,
       trim: true
     },
     email: {
       type: String,
-      required: [true, Messages.NO_EMAIL],
+      required: true,
       trim: true,
       lowercase: true,
       unique: true
     },
     photo: {
       type: String,
-      default: "default.jpg"
+      default: appConfig.DEFAULT_USER_AVATAR
     },
     role: {
       type: String,
-      enum: ["user", "guide", "lead-guide", "admin"],
-      default: "user"
+      enum: UserRoles,
+      default: UserRoles.USER
     },
     passwd: {
       type: String,
-      required: [true, Messages.NO_PASSWD],
-      minlength: [8, Messages.INVALID_PASSWD],
+      required: true,
+      minlength: appConfig.USER_PASSWD_MIN_LENGTH,
       select: false
     },
     passwdChangedAt: Date,

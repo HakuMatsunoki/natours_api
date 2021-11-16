@@ -1,15 +1,17 @@
 import express from "express";
 
-import * as authController from "../controllers/authController";
+import * as userController from "../controllers/userController";
 import * as authMiddleware from "../middlewares/authMiddleware";
+
+import { UserRoles } from "../constants";
 
 const router = express.Router();
 
-router.post(
-  "/signup",
-  authMiddleware.isUserDataValid,
-  authMiddleware.isNotEmailExist,
-  authController.signup
+router.get(
+  "/all",
+  authMiddleware.protectRoute,
+  authMiddleware.restrictTo(UserRoles.ADMIN),
+  userController.all
 );
 
 export { router as userRouter };
