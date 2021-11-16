@@ -3,10 +3,15 @@ import { JwtPayload } from "jsonwebtoken";
 
 import { RequestExt } from "../common";
 import { UserRoles, Messages, StatusCodes, TokenNames } from "../constants";
-import { Auth, AuthObject, User, UserObject } from "../models";
+import { Auth, AuthObject, User, UserDoc } from "../models";
 import { verifyToken } from "../services";
 import { AppError, catchAsync, userNameHandler } from "../utils";
-import { createUserValidator, emailValidator } from "../validators";
+import {
+  createUserValidator,
+  loginValidator,
+  emailValidator,
+  passwdValidator
+} from "../validators";
 
 export const isUserDataValid: RequestHandler = (req, _res, next) => {
   const { error } = createUserValidator.validate(req.body);
@@ -40,15 +45,47 @@ export const isNotEmailExist: RequestHandler = catchAsync(
   }
 );
 
+export const isPasswdValid: RequestHandler = (req, _res, next) => {
+  const { error } = passwdValidator.validate(req.body);
+
+  if (error)
+    return next(new AppError(Messages.INVALID_PASSWD, StatusCodes.BAD_REQUEST));
+
+  next();
+};
+
+export const isAccountExist: RequestHandler = catchAsync(
+  async (req: RequestExt, _res, next) => {
+    const { error } = emailValidator.validate(req.body);
+
+    if (error)
+      return next(
+        new AppError(Messages.INVALID_EMAIL, StatusCodes.BAD_REQUEST)
+      );
+
+    const user: UserDoc | null = await User.findOne({
+      email: req.body.email
+    });
+
+    if (!user)
+      return next(new AppError(Messages.NO_USER, StatusCodes.NOT_FOUND));
+
+    req.user = user;
+
+    next();
+  }
+);
+
 export const isAuthenticated: RequestHandler = catchAsync(
   async (req: RequestExt, _res, next) => {
-    const { passwd, email } = req.body;
-    const { error } = emailValidator.validate({ email, passwd });
+    const { error } = loginValidator.validate(req.body);
 
     if (error)
       return next(new AppError(Messages.INVALID_AUTH, StatusCodes.BAD_REQUEST));
 
-    const user: UserObject | null = await User.findOne({ email }).select(
+    const { passwd, email } = req.body;
+
+    const user: UserDoc | null = await User.findOne({ email }).select(
       "+passwd"
     );
 
@@ -76,7 +113,7 @@ export const protectRoute: RequestHandler = catchAsync(
       accessToken
     }).populate("user");
 
-    const userObject = authObject?.user as UserObject | void;
+    const userObject = authObject?.user as UserDoc | void;
 
     if (!id || !userObject || userObject.id !== id)
       return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));
@@ -100,7 +137,7 @@ export const checkRefresh: RequestHandler = catchAsync(
       refreshToken
     }).populate("user");
 
-    const userObject = authObject?.user as UserObject | void;
+    const userObject = authObject?.user as UserDoc | void;
 
     if (!id || !userObject || userObject.id !== id)
       return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));

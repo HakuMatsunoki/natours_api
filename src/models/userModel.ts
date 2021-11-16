@@ -1,12 +1,12 @@
 import bcrypt from "bcryptjs";
-// import crypto from "crypto";
-import { model, Schema } from "mongoose";
+import crypto from "crypto";
+import { model, Schema, Document } from "mongoose";
 
 import { appConfig } from "../configs";
 import { ModelTableNames, Messages } from "../constants";
 
 export interface UserObject {
-  id: string;
+  // id: string;
   name: string;
   email: string;
   photo: string;
@@ -14,10 +14,13 @@ export interface UserObject {
   passwd?: string;
   passwdChangedAt?: Date;
   passwdResetToken?: string;
-  passwdResetExpires?: Date;
+  passwdResetExpires?: Date | object;
   active?: boolean;
   checkPasswd: (candidatePasswd: string) => Promise<boolean>;
+  createPasswdResetToken: () => string;
 }
+
+export interface UserDoc extends UserObject, Document {}
 
 const userSchema = new Schema<UserObject>(
   {
@@ -74,4 +77,19 @@ userSchema.methods.checkPasswd = async function (
   return await bcrypt.compare(candidatePasswd, this.passwd);
 };
 
-export const User = model<UserObject>(ModelTableNames.USER, userSchema);
+userSchema.methods.createPasswdResetToken = function (): string {
+  const resetToken: string = crypto
+    .randomBytes(appConfig.PASSWD_RESET_TOKEN_LENGTH)
+    .toString("hex");
+  this.passwdResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  this.passwdResetExpires =
+    Date.now() + appConfig.PASSWD_RESET_TOKEN_EXPIRES_IN * 60 * 1000;
+
+  return resetToken;
+};
+
+export const User = model<UserDoc>(ModelTableNames.USER, userSchema);

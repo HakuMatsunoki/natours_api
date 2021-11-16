@@ -8,7 +8,15 @@ export const createUserValidator = Joi.object({
   passwd: Joi.string().regex(regexp.PASSWD).trim().required()
 });
 
-export const emailValidator = Joi.object({
+export const loginValidator = Joi.object({
   email: Joi.string().regex(regexp.EMAIL).trim().required(),
   passwd: Joi.string().trim().required()
+});
+
+export const emailValidator = Joi.object({
+  email: Joi.string().regex(regexp.EMAIL).trim().required()
+});
+
+export const passwdValidator = Joi.object({
+  passwd: Joi.string().regex(regexp.PASSWD).trim().required()
 });
