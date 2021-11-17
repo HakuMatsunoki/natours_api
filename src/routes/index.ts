@@ -1,2 +1,3 @@
-export * from "./userRoutes";
 export * from "./authRoutes";
+export * from "./tourRoutes";
+export * from "./userRoutes";

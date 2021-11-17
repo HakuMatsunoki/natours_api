@@ -20,7 +20,7 @@ export interface TourObject {
   description?: string;
   imageCover: string;
   images: Array<string>;
-  createdAt: number;
+  createdAt: Date;
   startDates: Array<Date>;
   secretTour: boolean;
   startLocation: Location;
@@ -98,8 +98,8 @@ const tourSchema: Schema = new Schema<TourObject>(
     },
     images: [String],
     createdAt: {
-      type: Number,
-      default: Date.now(),
+      type: Date,
+      default: new Date(Date.now()),
       select: false
     },
     startDates: [Date],
@@ -146,7 +146,17 @@ tourSchema.virtual("durationWeeks").get(function (this: TourObject): string {
 
 tourSchema.pre("save", function (next): void {
   this.slug = slugify(this.name, { lower: true });
+
   next();
 });
 
-export const Auth = model<TourObject>(ModelTableNames.TOUR, tourSchema);
+tourSchema.pre(/^find/, function (next): void {
+  this.populate({
+    path: "guides",
+    select: "-__v -passwordChangedAt"
+  });
+
+  next();
+});
+
+export const Tour = model<TourObject>(ModelTableNames.TOUR, tourSchema);
