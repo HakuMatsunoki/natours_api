@@ -18,6 +18,7 @@ export interface UserObject {
   active?: boolean;
   checkPasswd: (candidatePasswd: string) => Promise<boolean>;
   createPasswdResetToken: () => string;
+  changedPasswdAfter: (JWTTimestamp: number) => boolean;
 }
 
 export interface UserDoc extends UserObject, Document {}
@@ -71,10 +72,34 @@ userSchema.pre("save", async function (next): Promise<void> {
   next();
 });
 
+userSchema.pre("save", function (next): void {
+  if (!this.isModified("passwd") || this.isNew) return next();
+
+  this.passwdChangedAt = new Date(Date.now() - 1000);
+
+  next();
+});
+
+userSchema.pre(/^find/, function (next): void {
+  this.find({ active: { $ne: false } });
+
+  next();
+});
+
 userSchema.methods.checkPasswd = async function (
   candidatePasswd: string
 ): Promise<boolean> {
   return await bcrypt.compare(candidatePasswd, this.passwd);
+};
+
+// maybe not necessary
+userSchema.methods.changedPasswdAfter = function (
+  JWTTimestamp: number
+): boolean {
+  if (this.passwdChangedAt)
+    return JWTTimestamp < this.passwdChangedAt.getTime() / 1000;
+
+  return false;
 };
 
 userSchema.methods.createPasswdResetToken = function (): string {

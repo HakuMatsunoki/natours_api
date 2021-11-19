@@ -107,18 +107,30 @@ export const protectRoute: RequestHandler = catchAsync(
     if (!accessToken)
       return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));
 
-    const { id } = verifyToken(accessToken) as JwtPayload;
+    const decoded = verifyToken(accessToken) as JwtPayload;
 
     const authObject: AuthObject = await Auth.findOne({
       accessToken
     }).populate("user");
 
-    const userObject = authObject?.user as UserDoc | void;
+    const currentUser = authObject?.user as UserDoc | void;
 
-    if (!id || !userObject || userObject.id !== id)
+    if (
+      !decoded.id ||
+      !decoded.iat ||
+      !currentUser ||
+      currentUser.id !== decoded.id
+    )
       return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));
 
-    req.user = userObject;
+    // maybe not necessary
+    if (currentUser.changedPasswdAfter(decoded.iat)) {
+      return next(
+        new AppError("User recenty changed password! Please log in again.", 401)
+      );
+    }
+
+    req.user = currentUser;
 
     next();
   }

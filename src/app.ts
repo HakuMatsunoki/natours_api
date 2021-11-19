@@ -13,7 +13,7 @@ import xss from "xss-clean";
 import { serverConfigs } from "./configs";
 import { DevStatus, StatusCodes } from "./constants";
 import { globalErrorHandler } from "./controllers/errorController";
-import { authRouter, tourRouter, userRouter } from "./routes";
+import { authRouter, reviewRouter, tourRouter, userRouter } from "./routes";
 import { AppError, requestsLimitMsg, noUrlMsg } from "./utils";
 
 class App {
@@ -96,10 +96,10 @@ class App {
     // app.use('/', viewRouter);
 
     this.app.use("/api/v1/auth", authRouter);
+    this.app.use("/api/v1/reviews", reviewRouter);
     this.app.use("/api/v1/tours", tourRouter);
     this.app.use("/api/v1/users", userRouter);
 
-    // app.use('/api/v1/reviews', reviewRouter);
     // app.use('/api/v1/bookings', bookingRouter);
 
     this.app.all("*", (req, _res, next) => {

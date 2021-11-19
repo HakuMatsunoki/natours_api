@@ -8,7 +8,7 @@ import { UserRoles } from "../constants";
 const router = express.Router();
 
 router.get(
-  "/all",
+  "/",
   authMiddleware.protectRoute,
   authMiddleware.restrictTo(UserRoles.ADMIN),
   userController.all
