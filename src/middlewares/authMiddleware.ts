@@ -124,11 +124,10 @@ export const protectRoute: RequestHandler = catchAsync(
       return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));
 
     // maybe not necessary
-    if (currentUser.changedPasswdAfter(decoded.iat)) {
+    if (currentUser.changedPasswdAfter(decoded.iat))
       return next(
         new AppError("User recenty changed password! Please log in again.", 401)
       );
-    }
 
     req.user = currentUser;
 

@@ -117,10 +117,48 @@ export const resetPasswd: RequestHandler = catchAsync(
     user.passwdResetExpires = undefined;
 
     await user.save();
+
+    user.passwd = undefined;
+
+    const tokenPair: JWTPair = generateJWTPair(user.id);
+
     await Auth.deleteMany({ user: user.id });
+    await Auth.create({ ...tokenPair, user: user.id });
 
     res.status(StatusCodes.OK).json({
-      status: Messages.SUCCESS
+      status: Messages.SUCCESS,
+      user,
+      tokenPair
+    });
+  }
+);
+
+export const updateMyPasswd: RequestHandler = catchAsync(
+  async (req: RequestExt, res, next) => {
+    const { id } = req.user as UserDoc;
+
+    const user: UserDoc | null = await User.findById(id).select("+passwd");
+
+    if (!user || !(await user.checkPasswd(req.body.passwdCurrent))) {
+      return next(
+        new AppError(Messages.INVALID_PASSWD_CURRENT, StatusCodes.UNAUTH)
+      );
+    }
+
+    user.passwd = req.body.passwd;
+
+    await user.save();
+
+    user.passwd = undefined;
+
+    const tokenPair: JWTPair = generateJWTPair(user.id);
+
+    await Auth.deleteMany({ user: user.id });
+    await Auth.create({ ...tokenPair, user: user.id });
+
+    res.status(StatusCodes.OK).json({
+      status: Messages.SUCCESS,
+      tokenPair
     });
   }
 );

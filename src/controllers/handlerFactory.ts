@@ -68,6 +68,7 @@ export const deleteOne = (Model: Model<any>): RequestHandler =>
     }
 
     res.status(StatusCodes.NO_CONTENT).json({
-      status: Messages.SUCCESS
+      status: Messages.SUCCESS,
+      data: null
     });
   });
