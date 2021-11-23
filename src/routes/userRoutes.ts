@@ -9,6 +9,10 @@ import { UserRoles } from "../constants";
 
 const router = express.Router();
 
+// public
+router.get("/:id/photo/:name", userController.getPhoto);
+
+// protected
 router.use(authMiddleware.protectRoute);
 
 router.get("/me", userController.getMe);
@@ -16,6 +20,8 @@ router.patch("/updateMyPasswd", authController.updateMyPasswd);
 router.patch(
   "/updateMe",
   userMiddleware.filterUpdateUserObject,
+  userMiddleware.checkUserPhoto,
+  userMiddleware.uploadPhoto,
   userController.updateMe
 );
 router.delete("/deleteMe", userController.deleteMe);

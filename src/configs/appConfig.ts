@@ -11,6 +11,8 @@ export const appConfig = {
   PASSWD_RESET_TOKEN_EXPIRES_IN: process.env.PASSWD_RESET_TOKEN_EXPIRES_IN
     ? +process.env.PASSWD_RESET_TOKEN_EXPIRES_IN
     : 5,
+  AWS_REGION: process.env.AWS_REGION || "aws_region",
+  AWS_BUCKET: process.env.AWS_BUCKET || "aws_bucket",
   TOUR_NAME_MAX_LENGTH: process.env.TOUR_NAME_MAX_LENGTH
     ? +process.env.TOUR_NAME_MAX_LENGTH
     : 40,
@@ -23,5 +25,13 @@ export const appConfig = {
     : 8,
   RATING_MIN: process.env.RATING_MIN ? +process.env.RATING_MIN : 1,
   RATING_MAX: process.env.RATING_MAX ? +process.env.RATING_MAX : 5,
-  RATING_DEFAULT: process.env.RATING_DEFAULT ? +process.env.RATING_DEFAULT : 4.5
+  RATING_DEFAULT: process.env.RATING_DEFAULT
+    ? +process.env.RATING_DEFAULT
+    : 4.5,
+  USER_AVATAR_MAX_SIZE: process.env.USER_AVATAR_MAX_SIZE
+    ? +process.env.USER_AVATAR_MAX_SIZE * 1024 * 1024
+    : 10 * 1024 * 1024,
+  USER_AVATAR_RESOLUTION: process.env.USER_AVATAR_RESOLUTION
+    ? +process.env.USER_AVATAR_RESOLUTION
+    : 500
 };

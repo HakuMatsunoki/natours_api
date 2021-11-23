@@ -1,7 +1,9 @@
 import type { RequestHandler } from "express";
 import { Model, Document } from "mongoose";
 
+import { RequestExt } from "../common";
 import { Messages, StatusCodes } from "../constants";
+import { UserDoc } from "../models";
 import { AppError, catchAsync } from "../utils";
 
 export const createOne = (Model: Model<any>): RequestHandler =>
@@ -15,15 +17,13 @@ export const createOne = (Model: Model<any>): RequestHandler =>
   });
 
 export const updateOne = (Model: Model<any>): RequestHandler =>
-  catchAsync(async (req, res, next) => {
-    const data: Document = await Model.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true
-      }
-    );
+  catchAsync(async (req: RequestExt, res, next) => {
+    const id = req.params.id || (req.user as UserDoc).id;
+
+    const data: Document = await Model.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true
+    });
 
     if (!data) {
       return next(new AppError(Messages.NO_DOCUMENT, StatusCodes.NOT_FOUND));

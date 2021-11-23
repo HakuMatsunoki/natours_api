@@ -1,6 +1,7 @@
 import compression from "compression";
 import cors from "cors";
 import express from "express";
+import fileUpload from "express-fileupload";
 import mongoSanitize from "express-mongo-sanitize";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
@@ -59,6 +60,7 @@ class App {
       })
     );
 
+    this.app.use(fileUpload());
     this.app.use(compression());
     this.mountRoutes();
     this.setupDB();
