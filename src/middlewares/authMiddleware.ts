@@ -14,15 +14,13 @@ import {
 } from "../validators";
 
 export const isUserDataValid: RequestHandler = (req, _res, next) => {
+  // TODO: validators issue
   const { error } = createUserValidator.validate(req.body);
 
-  if (error) {
-    const errorPath: string | number = error.details[0].path[0];
-
+  if (error)
     return next(
-      new AppError(Messages.INVALID_CREDS + errorPath, StatusCodes.BAD_REQUEST)
+      new AppError(Messages.INVALID_CREDS + error.details[0].message, StatusCodes.BAD_REQUEST)
     );
-  }
 
   req.body.role = UserRoles.USER;
   req.body.name = userNameHandler(req.body.name);
@@ -30,134 +28,107 @@ export const isUserDataValid: RequestHandler = (req, _res, next) => {
   next();
 };
 
-export const isNotEmailExist: RequestHandler = catchAsync(
-  async (req, _res, next) => {
-    const { email } = req.body;
+export const isNotEmailExist: RequestHandler = catchAsync(async (req, _res, next) => {
+  const { email } = req.body;
 
-    const userExist: boolean = !!(await User.findOne({ email }));
+  const userExist: boolean = !!(await User.findOne({ email }));
 
-    if (userExist)
-      return next(
-        new AppError(Messages.DUPLICATED_ACCOUNT, StatusCodes.CONFLICT)
-      );
+  if (userExist) return next(new AppError(Messages.DUPLICATED_ACCOUNT, StatusCodes.CONFLICT));
 
-    next();
-  }
-);
+  next();
+});
 
 export const isPasswdValid: RequestHandler = (req, _res, next) => {
+  // TODO: validators issue
   const { error } = passwdValidator.validate(req.body);
 
-  if (error)
-    return next(new AppError(Messages.INVALID_PASSWD, StatusCodes.BAD_REQUEST));
+  if (error) return next(new AppError(Messages.INVALID_PASSWD, StatusCodes.BAD_REQUEST));
 
   next();
 };
 
-export const isAccountExist: RequestHandler = catchAsync(
-  async (req: RequestExt, _res, next) => {
-    const { error } = emailValidator.validate(req.body);
+export const isAccountExist: RequestHandler = catchAsync(async (req: RequestExt, _res, next) => {
+  // TODO: validators issue
+  const { error } = emailValidator.validate(req.body);
 
-    if (error)
-      return next(
-        new AppError(Messages.INVALID_EMAIL, StatusCodes.BAD_REQUEST)
-      );
+  if (error) return next(new AppError(Messages.INVALID_EMAIL, StatusCodes.BAD_REQUEST));
 
-    const user: UserDoc | null = await User.findOne({
-      email: req.body.email
-    });
+  const user: UserDoc | null = await User.findOne({
+    email: req.body.email
+  });
 
-    if (!user)
-      return next(new AppError(Messages.NO_USER, StatusCodes.NOT_FOUND));
+  if (!user) return next(new AppError(Messages.NO_USER, StatusCodes.NOT_FOUND));
 
-    req.user = user;
+  req.user = user;
 
-    next();
+  next();
+});
+
+export const isAuthenticated: RequestHandler = catchAsync(async (req: RequestExt, _res, next) => {
+  // TODO: validators issue
+  const { error } = loginValidator.validate(req.body);
+
+  if (error) return next(new AppError(Messages.INVALID_AUTH, StatusCodes.BAD_REQUEST));
+
+  const { passwd, email } = req.body;
+
+  const user: UserDoc | null = await User.findOne({ email }).select("+passwd");
+
+  if (!user || !(await user.checkPasswd(passwd))) {
+    return next(new AppError(Messages.INVALID_AUTH, StatusCodes.UNAUTH));
   }
-);
 
-export const isAuthenticated: RequestHandler = catchAsync(
-  async (req: RequestExt, _res, next) => {
-    const { error } = loginValidator.validate(req.body);
+  user.passwd = undefined;
+  req.user = user;
 
-    if (error)
-      return next(new AppError(Messages.INVALID_AUTH, StatusCodes.BAD_REQUEST));
+  next();
+});
 
-    const { passwd, email } = req.body;
+export const protectRoute: RequestHandler = catchAsync(async (req: RequestExt, _res, next) => {
+  const accessToken: string | undefined = req.get(TokenNames.AUTH);
 
-    const user: UserDoc | null = await User.findOne({ email }).select(
-      "+passwd"
-    );
+  if (!accessToken) return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));
 
-    if (!user || !(await user.checkPasswd(passwd))) {
-      return next(new AppError(Messages.INVALID_AUTH, StatusCodes.UNAUTH));
-    }
+  const decoded = verifyToken(accessToken) as JwtPayload;
 
-    user.passwd = undefined;
-    req.user = user;
+  const authObject: AuthObject = await Auth.findOne({
+    accessToken
+  }).populate("user");
 
-    next();
-  }
-);
+  const currentUser = authObject?.user as UserDoc | void;
 
-export const protectRoute: RequestHandler = catchAsync(
-  async (req: RequestExt, _res, next) => {
-    const accessToken: string | undefined = req.get(TokenNames.AUTH);
+  if (!decoded.id || !decoded.iat || !currentUser || currentUser.id !== decoded.id)
+    return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));
 
-    if (!accessToken)
-      return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));
+  // maybe not necessary
+  if (currentUser.changedPasswdAfter(decoded.iat))
+    return next(new AppError("User recenty changed password! Please log in again.", 401));
 
-    const decoded = verifyToken(accessToken) as JwtPayload;
+  req.user = currentUser;
 
-    const authObject: AuthObject = await Auth.findOne({
-      accessToken
-    }).populate("user");
+  next();
+});
 
-    const currentUser = authObject?.user as UserDoc | void;
+export const checkRefresh: RequestHandler = catchAsync(async (req: RequestExt, _res, next) => {
+  const refreshToken: string | undefined = req.get(TokenNames.AUTH);
 
-    if (
-      !decoded.id ||
-      !decoded.iat ||
-      !currentUser ||
-      currentUser.id !== decoded.id
-    )
-      return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));
+  if (!refreshToken) return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));
 
-    // maybe not necessary
-    if (currentUser.changedPasswdAfter(decoded.iat))
-      return next(
-        new AppError("User recenty changed password! Please log in again.", 401)
-      );
+  const { id } = verifyToken(refreshToken, false) as JwtPayload;
 
-    req.user = currentUser;
+  const authObject: AuthObject | null = await Auth.findOne({
+    refreshToken
+  }).populate("user");
 
-    next();
-  }
-);
+  const userObject = authObject?.user as UserDoc | void;
 
-export const checkRefresh: RequestHandler = catchAsync(
-  async (req: RequestExt, _res, next) => {
-    const refreshToken: string | undefined = req.get(TokenNames.AUTH);
+  if (!id || !userObject || userObject.id !== id)
+    return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));
 
-    if (!refreshToken)
-      return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));
+  req.user = userObject;
 
-    const { id } = verifyToken(refreshToken, false) as JwtPayload;
-
-    const authObject: AuthObject | null = await Auth.findOne({
-      refreshToken
-    }).populate("user");
-
-    const userObject = authObject?.user as UserDoc | void;
-
-    if (!id || !userObject || userObject.id !== id)
-      return next(new AppError(Messages.INVALID_TOKEN, StatusCodes.UNAUTH));
-
-    req.user = userObject;
-
-    next();
-  }
-);
+  next();
+});
 
 export const restrictTo =
   (...userRoles: Array<string>): RequestHandler =>

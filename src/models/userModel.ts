@@ -6,7 +6,6 @@ import { appConfig } from "../configs";
 import { ModelTableNames, UserRoles } from "../constants";
 
 export interface UserObject {
-  // id: string;
   name: string;
   email: string;
   photo: string;

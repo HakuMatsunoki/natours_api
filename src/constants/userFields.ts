@@ -1,4 +1,6 @@
 export enum UserFields {
   NAME = "name",
-  EMAIL = "email"
+  EMAIL = "email",
+  PHOTO = "photo",
+  ROLE = "role"
 }

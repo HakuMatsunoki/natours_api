@@ -6,16 +6,12 @@ import { appConfig } from "../configs";
 import { Messages, StatusCodes, UserFields } from "../constants";
 import { UserDoc } from "../models";
 import { s3BucketUpload, userAvatarSharp } from "../services";
-import { AppError, catchAsync, fileNameBuilder, filterBodyObj } from "../utils";
+import { AppError, catchAsync, fileNameBuilder, FileName, softValidator } from "../utils";
+import { userReqValidators } from "../validators";
 
 export const filterUpdateUserObject: RequestHandler = (req, _res, next) => {
-  if (req.body.passwd) {
-    return next(
-      new AppError(Messages.FORBIDDEN_PASSWD_FIELD, StatusCodes.BAD_REQUEST)
-    );
-  }
-
-  req.body = filterBodyObj(req.body, UserFields.NAME, UserFields.EMAIL);
+  const allowedFields: string[] = [UserFields.NAME, UserFields.EMAIL];
+  req.body = softValidator(req.body, allowedFields, userReqValidators);
 
   next();
 };
@@ -26,9 +22,7 @@ export const checkUserPhoto: RequestHandler = (req: RequestExt, _res, next) => {
   if (!photo) return next();
 
   if (Array.isArray(photo))
-    return next(
-      new AppError(Messages.FILE_NOT_SINGLE, StatusCodes.BAD_REQUEST)
-    );
+    return next(new AppError(Messages.FILE_NOT_SINGLE, StatusCodes.BAD_REQUEST));
 
   if (photo.size > appConfig.USER_AVATAR_MAX_SIZE)
     return next(new AppError(Messages.FILE_LARGE, StatusCodes.BAD_REQUEST));
@@ -43,24 +37,18 @@ export const checkUserPhoto: RequestHandler = (req: RequestExt, _res, next) => {
   next();
 };
 
-export const uploadPhoto: RequestHandler = catchAsync(
-  async (req: RequestExt, _res, next) => {
-    const photo = req.photo as UploadedFile;
+export const uploadPhoto: RequestHandler = catchAsync(async (req: RequestExt, _res, next) => {
+  const photo = req.photo as UploadedFile;
 
-    if (!photo) return next();
+  if (!photo) return next();
 
-    const { id } = req.user as UserDoc;
-    const fileName: string = fileNameBuilder(
-      photo.mimetype.split("/")[1],
-      "users",
-      id
-    );
+  const { id } = req.user as UserDoc;
+  const fileNameObj: FileName = fileNameBuilder("jpg", "users", id);
 
-    const sharpedPhoto: Buffer = await userAvatarSharp(photo);
-    await s3BucketUpload(fileName, photo.mimetype, sharpedPhoto);
+  const sharpedPhoto: Buffer = await userAvatarSharp(photo);
+  await s3BucketUpload(fileNameObj.path, photo.mimetype, sharpedPhoto);
 
-    req.body.photo = fileName;
+  req.body.photo = fileNameObj.file;
 
-    next();
-  }
-);
+  next();
+});
