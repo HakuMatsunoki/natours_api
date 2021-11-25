@@ -4,10 +4,12 @@ import { JoiValidatorsObj, UnknownObj } from "../common";
 import { Messages, StatusCodes } from "../constants";
 import { AppError } from "../utils";
 
-export const softValidator = (
+// TODO: create unit tests
+export const filterRequestObject = (
   obj: UnknownObj,
   allowedFields: string[],
-  validators: JoiValidatorsObj
+  validators: JoiValidatorsObj,
+  errorMsg?: string
 ): UnknownObj => {
   const options: JoiValidatorsObj = {};
 
@@ -19,7 +21,7 @@ export const softValidator = (
 
   if (validated.error)
     throw new AppError(
-      Messages.INVALID_CREDS + validated.error.details[0].message,
+      errorMsg || Messages.INVALID_CREDS + validated.error.details[0].message,
       StatusCodes.BAD_REQUEST
     );
 

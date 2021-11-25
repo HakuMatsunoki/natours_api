@@ -5,14 +5,14 @@ import type { StringSchema } from "joi";
 import { UserObject } from "../models";
 
 export interface RequestExt extends Request {
-    user?: UserObject;
-    photo?: UploadedFile | UploadedFile[];
+  user?: UserObject;
+  photo?: UploadedFile | UploadedFile[];
 }
 
 export interface JoiValidatorsObj {
-    [prop: string]: StringSchema;
+  [prop: string]: StringSchema;
 }
 
 export interface UnknownObj {
-    [prop: string]: any;
+  [prop: string]: any;
 }

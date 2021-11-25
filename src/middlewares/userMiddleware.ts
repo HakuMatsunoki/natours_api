@@ -6,12 +6,12 @@ import { appConfig } from "../configs";
 import { Messages, StatusCodes, UserFields } from "../constants";
 import { UserDoc } from "../models";
 import { s3BucketUpload, userAvatarSharp } from "../services";
-import { AppError, catchAsync, fileNameBuilder, FileName, softValidator } from "../utils";
-import { userReqValidators } from "../validators";
+import { AppError, catchAsync, fileNameBuilder, FileName, filterRequestObject } from "../utils";
+import { userRegularValidators } from "../validators";
 
 export const filterUpdateUserObject: RequestHandler = (req, _res, next) => {
   const allowedFields: string[] = [UserFields.NAME, UserFields.EMAIL];
-  req.body = softValidator(req.body, allowedFields, userReqValidators);
+  req.body = filterRequestObject(req.body, allowedFields, userRegularValidators);
 
   next();
 };

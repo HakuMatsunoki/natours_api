@@ -2,26 +2,15 @@ import { RequestHandler } from "express";
 import { JwtPayload } from "jsonwebtoken";
 
 import { RequestExt } from "../common";
-import { UserRoles, Messages, StatusCodes, TokenNames } from "../constants";
+import { UserRoles, Messages, StatusCodes, TokenNames, UserFields } from "../constants";
 import { Auth, AuthObject, User, UserDoc } from "../models";
 import { verifyToken } from "../services";
-import { AppError, catchAsync, userNameHandler } from "../utils";
-import {
-  createUserValidator,
-  loginValidator,
-  emailValidator,
-  passwdValidator
-} from "../validators";
+import { AppError, catchAsync, filterRequestObject, userNameHandler } from "../utils";
+import { userRequiredValidators, userLoginValidators } from "../validators";
 
 export const isUserDataValid: RequestHandler = (req, _res, next) => {
-  // TODO: validators issue
-  const { error } = createUserValidator.validate(req.body);
-
-  if (error)
-    return next(
-      new AppError(Messages.INVALID_CREDS + error.details[0].message, StatusCodes.BAD_REQUEST)
-    );
-
+  const allowedFields: string[] = [UserFields.NAME, UserFields.EMAIL, UserFields.PASSWD];
+  req.body = filterRequestObject(req.body, allowedFields, userRequiredValidators);
   req.body.role = UserRoles.USER;
   req.body.name = userNameHandler(req.body.name);
 
@@ -39,22 +28,18 @@ export const isNotEmailExist: RequestHandler = catchAsync(async (req, _res, next
 });
 
 export const isPasswdValid: RequestHandler = (req, _res, next) => {
-  // TODO: validators issue
-  const { error } = passwdValidator.validate(req.body);
-
-  if (error) return next(new AppError(Messages.INVALID_PASSWD, StatusCodes.BAD_REQUEST));
+  const allowedFields: string[] = [UserFields.PASSWD];
+  req.body = filterRequestObject(req.body, allowedFields, userRequiredValidators);
 
   next();
 };
 
 export const isAccountExist: RequestHandler = catchAsync(async (req: RequestExt, _res, next) => {
-  // TODO: validators issue
-  const { error } = emailValidator.validate(req.body);
-
-  if (error) return next(new AppError(Messages.INVALID_EMAIL, StatusCodes.BAD_REQUEST));
+  const allowedFields: string[] = [UserFields.EMAIL];
+  const { email } = filterRequestObject(req.body, allowedFields, userRequiredValidators);
 
   const user: UserDoc | null = await User.findOne({
-    email: req.body.email
+    email
   });
 
   if (!user) return next(new AppError(Messages.NO_USER, StatusCodes.NOT_FOUND));
@@ -65,12 +50,13 @@ export const isAccountExist: RequestHandler = catchAsync(async (req: RequestExt,
 });
 
 export const isAuthenticated: RequestHandler = catchAsync(async (req: RequestExt, _res, next) => {
-  // TODO: validators issue
-  const { error } = loginValidator.validate(req.body);
-
-  if (error) return next(new AppError(Messages.INVALID_AUTH, StatusCodes.BAD_REQUEST));
-
-  const { passwd, email } = req.body;
+  const allowedFields: string[] = [UserFields.EMAIL, UserFields.PASSWD];
+  const { email, passwd } = filterRequestObject(
+    req.body,
+    allowedFields,
+    userLoginValidators,
+    Messages.INVALID_AUTH
+  );
 
   const user: UserDoc | null = await User.findOne({ email }).select("+passwd");
 

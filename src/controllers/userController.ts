@@ -26,18 +26,16 @@ export const getMe: RequestHandler = (req: RequestExt, res, _next) => {
 
 export const updateMe: RequestHandler = factory.updateOne(User);
 
-export const deleteMe: RequestHandler = catchAsync(
-  async (req: RequestExt, res, _next) => {
-    const { id } = req.user as UserDoc;
+export const deleteMe: RequestHandler = catchAsync(async (req: RequestExt, res, _next) => {
+  const { id } = req.user as UserDoc;
 
-    await User.findByIdAndUpdate(id, { active: false });
+  await User.findByIdAndUpdate(id, { active: false });
 
-    res.status(StatusCodes.NO_CONTENT).json({
-      status: Messages.SUCCESS,
-      data: null
-    });
-  }
-);
+  res.status(StatusCodes.NO_CONTENT).json({
+    status: Messages.SUCCESS,
+    data: null
+  });
+});
 
 export const getPhoto: RequestHandler = catchAsync(async (req, res) => {
   const { id, name } = req.params;

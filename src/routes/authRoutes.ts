@@ -11,7 +11,6 @@ router.post(
   authMiddleware.isNotEmailExist,
   authController.signup
 );
-
 router.post("/login", authMiddleware.isAuthenticated, authController.login);
 router.post("/logout", authMiddleware.protectRoute, authController.logout);
 router.post("/logoutAll", authMiddleware.protectRoute, authController.logoutAll);
