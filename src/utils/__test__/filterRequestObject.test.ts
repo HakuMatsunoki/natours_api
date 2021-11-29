@@ -95,8 +95,7 @@ describe("Test utils", () => {
         const filteredRequest = filterRequestObject(
           item.obj,
           item.allowedFields,
-          item.validators,
-          ""
+          item.validators
         );
 
         expect(JSON.stringify(filteredRequest)).toBe(JSON.stringify(item.output));

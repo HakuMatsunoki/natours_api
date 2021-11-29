@@ -24,18 +24,18 @@ const userSchema = new mongoose.Schema({
     enum: ["user", "guide", "lead-guide", "admin"],
     default: "user"
   },
-  password: {
+  passwd: {
     type: String,
-    required: [true, "User must have an password"],
-    minlength: [8, "password should be at least 8 characters long"],
+    required: [true, "User must have an passwd"],
+    minlength: [8, "passwd should be at least 8 characters long"],
     select: false
   },
-  passwordChangedAt: {
+  passwdChangedAt: {
     type: Date
     // required: true
   },
-  passwordResetToken: String,
-  passwordResetExpires: Date,
+  passwdResetToken: String,
+  passwdResetExpires: Date,
   active: {
     type: Boolean,
     default: true,
@@ -46,17 +46,17 @@ const userSchema = new mongoose.Schema({
 // START comment this, when impporting user data from json to db
 userSchema.pre("save", async function (next) {
   // ony run function if passwd was actually modified
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("passwd")) return next();
   // hash passwd with cost of 12
-  this.password = await bcrypt.hash(this.password, 12);
+  this.passwd = await bcrypt.hash(this.passwd, 12);
   // delete passwd confirm field
   next();
 });
 
 userSchema.pre("save", function (next) {
-  if (!this.isModified("password") || this.isNew) return next();
+  if (!this.isModified("passwd") || this.isNew) return next();
 
-  this.passwordChangedAt = Date.now() - 1000;
+  this.passwdChangedAt = Date.now() - 1000;
   next();
 });
 //======================= END
@@ -67,17 +67,17 @@ userSchema.pre(/^find/, function (next) {
   next();
 });
 
-userSchema.methods.correctPassword = async function (
-  candidatePassword,
-  userPassword
+userSchema.methods.correctPasswd = async function (
+  candidatePasswd,
+  userPasswd
 ) {
-  return await bcrypt.compare(candidatePassword, userPassword);
+  return await bcrypt.compare(candidatePasswd, userPasswd);
 };
 
-userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
-  if (this.passwordChangedAt) {
+userSchema.methods.changedPasswdAfter = function (JWTTimestamp) {
+  if (this.passwdChangedAt) {
     const changedTimestamp = parseInt(
-      this.passwordChangedAt.getTime() / 1000,
+      this.passwdChangedAt.getTime() / 1000,
       10
     );
     // console.log(this.passwordChangedAt, JWTTimestamp);
@@ -89,16 +89,16 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   return false;
 };
 
-userSchema.methods.createPasswordResetToken = function () {
+userSchema.methods.createPasswdResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString("hex");
-  this.passwordResetToken = crypto
+  this.passwdResetToken = crypto
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
 
-  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  this.passwdResetExpires = Date.now() + 10 * 60 * 1000;
 
-  // console.log({ resetToken }, this.passwordResetToken);
+  // console.log({ resetToken }, this.passwdResetToken);
 
   return resetToken;
 };
