@@ -103,7 +103,8 @@
     "skipLibCheck": true /* Skip type checking all .d.ts files. */
   },
   "exclude": [
-    "node_modules" // would be default
+    "node_modules", // would be default
+    "**/__test__"
     // "**/*.dev.ts"
   ]
   // "include": ["filename"],

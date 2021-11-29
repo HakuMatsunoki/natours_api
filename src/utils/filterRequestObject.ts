@@ -2,9 +2,8 @@ import * as Joi from "joi";
 
 import { JoiValidatorsObj, UnknownObj } from "../common";
 import { Messages, StatusCodes } from "../constants";
-import { AppError } from "../utils";
+import { AppError } from ".";
 
-// TODO: create unit tests
 export const filterRequestObject = (
   obj: UnknownObj,
   allowedFields: string[],

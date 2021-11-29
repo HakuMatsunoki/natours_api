@@ -1,7 +1,18 @@
-export const userNameHandler = (name: string): string =>
-  name
+export const userNameHandler = (name: string): string => {
+  if (typeof name !== "string") return "";
+
+  const handledArray: string[] = name
     .normalize("NFD")
     .replace(/\p{Diacritic}/gu, "")
-    .replace(/[^A-Za-z]/g, " ")
-    .split(" ")
-    .join(" ");
+    .toLowerCase()
+    .replace(/[^a-z]/g, " ")
+    .split(" ");
+
+  const resultArray: string[] = [];
+
+  for (const item of handledArray) {
+    if (item) resultArray.push(item.charAt(0).toUpperCase() + item.slice(1));
+  }
+
+  return resultArray.join(" ");
+};
