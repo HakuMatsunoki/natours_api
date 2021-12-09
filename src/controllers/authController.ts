@@ -6,7 +6,7 @@ import { Messages, StatusCodes, TokenNames } from "../constants";
 
 import { User, UserDoc, Auth } from "../models";
 
-import { generateJWTPair, JWTPair } from "../services";
+import { generateJWTPair, JWTPair, Email } from "../services";
 import { catchAsync, AppError } from "../utils";
 
 export const signup: RequestHandler = catchAsync(async (req, res, _next) => {
@@ -14,9 +14,12 @@ export const signup: RequestHandler = catchAsync(async (req, res, _next) => {
 
   newUser.passwd = undefined;
   newUser.active = undefined;
+
   const tokenPair: JWTPair = generateJWTPair(newUser.id);
+  const email: Email = new Email(newUser);
 
   await Auth.create({ ...tokenPair, user: newUser.id });
+  await email.sendWelcome();
 
   res.status(StatusCodes.OK).json({
     status: Messages.SUCCESS,
@@ -82,15 +85,13 @@ export const forgotPasswd: RequestHandler = catchAsync(
   async (req: RequestExt, res, _next) => {
     const user = req.user as UserDoc;
     const resetToken: string = user.createPasswdResetToken();
+    const email: Email = new Email(user);
 
     await user.save({ validateBeforeSave: false });
-
-    // send email notification
+    await email.sendPasswdReset(resetToken);
 
     res.status(StatusCodes.OK).json({
-      status: Messages.SUCCESS,
-      // remove
-      resetToken
+      status: Messages.SUCCESS
     });
   }
 );
@@ -119,11 +120,15 @@ export const resetPasswd: RequestHandler = catchAsync(
     await user.save();
 
     user.passwd = undefined;
-
     const tokenPair: JWTPair = generateJWTPair(user.id);
 
     await Auth.deleteMany({ user: user.id });
     await Auth.create({ ...tokenPair, user: user.id });
+
+    const email: Email = new Email(user);
+    const msg: string = Messages.PASS_UPDATED;
+
+    await email.sendCustomMsg(msg);
 
     res.status(StatusCodes.OK).json({
       status: Messages.SUCCESS,
@@ -150,11 +155,15 @@ export const updateMyPasswd: RequestHandler = catchAsync(
     await user.save();
 
     user.passwd = undefined;
-
     const tokenPair: JWTPair = generateJWTPair(user.id);
 
     await Auth.deleteMany({ user: user.id });
     await Auth.create({ ...tokenPair, user: user.id });
+
+    const email: Email = new Email(user);
+    const msg: string = Messages.PASS_UPDATED;
+
+    await email.sendCustomMsg(msg);
 
     res.status(StatusCodes.OK).json({
       status: Messages.SUCCESS,

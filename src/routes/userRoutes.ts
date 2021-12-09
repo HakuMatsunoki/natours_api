@@ -29,9 +29,18 @@ router.delete("/deleteMe", userController.deleteMe);
 // restrict to admin
 router.use(authMiddleware.restrictTo(UserRoles.ADMIN));
 
-router.get("/", userController.getAllUsers);
+router
+  .route("/")
+  .get(userController.getAllUsers)
+  .post(
+    userMiddleware.filterCreateUserObject,
+    userMiddleware.sendTempUserCreds,
+    userController.createUser
+  );
+
 router
   .route("/:id")
+  .all(userMiddleware.checkId)
   .get(userController.getUser)
   .patch(userController.updateUser)
   .delete(userController.deleteUser);

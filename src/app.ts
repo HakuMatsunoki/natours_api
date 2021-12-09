@@ -7,7 +7,7 @@ import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import hpp from "hpp";
 import mongoose from "mongoose";
-// import path from "path";
+import path from "path";
 import morgan from "morgan";
 import xss from "xss-clean";
 
@@ -15,6 +15,7 @@ import { serverConfigs } from "./configs";
 import { DevStatus, StatusCodes } from "./constants";
 import { globalErrorHandler } from "./controllers/errorController";
 import { authRouter, reviewRouter, tourRouter, userRouter } from "./routes";
+import { logger } from "./services";
 import { AppError, requestsLimitMsg, noUrlMsg } from "./utils";
 
 class App {
@@ -23,7 +24,13 @@ class App {
 
   private constructor() {
     this.app.enable("trust proxy");
+
+    this.app.set("view engine", "pug");
+    this.app.set("views", path.join(__dirname, "views"));
+
     this.app.use(cors());
+    // this.app.options('*', cors());
+    // this.app.use(express.static(path.join(__dirname, 'public')));
     this.app.use(helmet());
 
     if (serverConfigs.NODE_ENV === DevStatus.DEV) this.app.use(morgan("dev"));
@@ -44,6 +51,7 @@ class App {
         limit: serverConfigs.REQUEST_BODY_MAX
       })
     );
+
     this.app.use(mongoSanitize());
     this.app.use(xss());
 
@@ -62,6 +70,8 @@ class App {
 
     this.app.use(fileUpload());
     this.app.use(compression());
+    this.app.use(logger);
+
     this.mountRoutes();
     this.setupDB();
 
@@ -87,22 +97,12 @@ class App {
   }
 
   private mountRoutes(): void {
-    // app.use((req, res, next) => {
-    //   req.requestTime = new Date().toISOString();
-    //   // console.log(x); //test exception error
-    //   // console.log(req.headers);
-    //   // console.log(req.cookies);
-    //   next();
-    // });
-    // // 3.ROUTES ============================================
-    // app.use('/', viewRouter);
-
+    // this.app.use('/', viewRouter);
     this.app.use("/api/v1/auth", authRouter);
     this.app.use("/api/v1/reviews", reviewRouter);
     this.app.use("/api/v1/tours", tourRouter);
     this.app.use("/api/v1/users", userRouter);
-
-    // app.use('/api/v1/bookings', bookingRouter);
+    // this.app.use('/api/v1/bookings', bookingRouter);
 
     this.app.all("*", (req, _res, next) => {
       next(new AppError(noUrlMsg(req.originalUrl), StatusCodes.NOT_FOUND));

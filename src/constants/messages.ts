@@ -2,6 +2,7 @@ export enum Messages {
   DIFF_PASSWD = "Passwords are not the same..",
   DUPLICATED_ACCOUNT = "This account already exist..",
   DUPLICATED_ITEM = "Item already added..",
+  EMAIL_FAILED = "Email sending failed..",
   ERROR_MAIL = "There was an error sending email. Please, try again later..",
   EXPIRED_TOKEN = "Token has expired..",
   FILE_INVALID = "Wrong file format",
@@ -25,6 +26,7 @@ export enum Messages {
   NO_TOUR_NAME = "Tour must have a name..",
   NO_USER = "This user does no longer exist..",
   NOT_ALLOWED = "You do not have permission to perform this action..",
+  PASS_UPDATED = "Your password successfully updated..",
   SUCCESS = "Success..",
   TOKEN_SENT = "Token sent to email..",
   USER_CREATED = "Account successfully created.."

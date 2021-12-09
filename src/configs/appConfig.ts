@@ -33,5 +33,10 @@ export const appConfig = {
     : 10 * 1024 * 1024,
   USER_AVATAR_RESOLUTION: process.env.USER_AVATAR_RESOLUTION
     ? +process.env.USER_AVATAR_RESOLUTION
-    : 500
+    : 500,
+  EMAIL_FROM: process.env.EMAIL_FROM || "mail@example.com",
+  EMAIL_USERNAME: process.env.EMAIL_USERNAME || "mail_user_name",
+  EMAIL_PASSWD: process.env.EMAIL_PASSWD || "mail_user_passwd",
+  MAIN_SITE_URL: process.env.MAIN_SITE_URL || "#",
+  CHANGE_PASSWD_URL: process.env.CHANGE_PASSWD_URL || "#"
 };

@@ -1,7 +1,10 @@
 import { filterRequestObject } from "..";
 import { JoiValidatorsObj, UnknownObj } from "../../common";
 import { UserFields } from "../../constants";
-import { userRegularValidators, userRequiredValidators } from "../../validators";
+import {
+  userRegularValidators,
+  userRequiredValidators
+} from "../../validators";
 
 interface JestObj {
   obj: UnknownObj;
@@ -32,13 +35,22 @@ const testingData: JestObj[] = [
     output: { [UserFields.NAME]: "Jimi Hendrix" }
   },
   {
-    obj: { [UserFields.NAME]: "Jimi Hendrix", [UserFields.EMAIL]: "jimi@example.com" },
+    obj: {
+      [UserFields.NAME]: "Jimi Hendrix",
+      [UserFields.EMAIL]: "jimi@example.com"
+    },
     allowedFields: [UserFields.NAME, UserFields.EMAIL],
     validators: userRegularValidators,
-    output: { [UserFields.NAME]: "Jimi Hendrix", [UserFields.EMAIL]: "jimi@example.com" }
+    output: {
+      [UserFields.NAME]: "Jimi Hendrix",
+      [UserFields.EMAIL]: "jimi@example.com"
+    }
   },
   {
-    obj: { [UserFields.NAME]: "Jimi Hendrix", [UserFields.EMAIL]: "jimi@example.com" },
+    obj: {
+      [UserFields.NAME]: "Jimi Hendrix",
+      [UserFields.EMAIL]: "jimi@example.com"
+    },
     allowedFields: [UserFields.NAME],
     validators: userRegularValidators,
     output: { error: true }
@@ -69,13 +81,22 @@ const testingData: JestObj[] = [
     output: { error: true }
   },
   {
-    obj: { [UserFields.NAME]: "Jimi Hendrix", [UserFields.EMAIL]: "jimi@example.com" },
+    obj: {
+      [UserFields.NAME]: "Jimi Hendrix",
+      [UserFields.EMAIL]: "jimi@example.com"
+    },
     allowedFields: [UserFields.NAME, UserFields.EMAIL],
     validators: userRequiredValidators,
-    output: { [UserFields.NAME]: "Jimi Hendrix", [UserFields.EMAIL]: "jimi@example.com" }
+    output: {
+      [UserFields.NAME]: "Jimi Hendrix",
+      [UserFields.EMAIL]: "jimi@example.com"
+    }
   },
   {
-    obj: { [UserFields.NAME]: "Jimi Hendrix", [UserFields.EMAIL]: "jimi@example.com" },
+    obj: {
+      [UserFields.NAME]: "Jimi Hendrix",
+      [UserFields.EMAIL]: "jimi@example.com"
+    },
     allowedFields: [UserFields.NAME],
     validators: userRequiredValidators,
     output: { error: true }
@@ -98,7 +119,9 @@ describe("Test utils", () => {
           item.validators
         );
 
-        expect(JSON.stringify(filteredRequest)).toBe(JSON.stringify(item.output));
+        expect(JSON.stringify(filteredRequest)).toBe(
+          JSON.stringify(item.output)
+        );
       } catch (_err) {
         expect(item.output.error).toBe(true);
       }

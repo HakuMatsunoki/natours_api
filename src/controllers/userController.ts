@@ -11,6 +11,7 @@ import { s3BucketDownload } from "../services";
 import { catchAsync } from "../utils";
 
 export const getAllUsers: RequestHandler = factory.getAll(User);
+export const createUser: RequestHandler = factory.createOne(User);
 export const getUser: RequestHandler = factory.getOne(User);
 export const updateUser: RequestHandler = factory.updateOne(User);
 export const deleteUser: RequestHandler = factory.deleteOne(User);

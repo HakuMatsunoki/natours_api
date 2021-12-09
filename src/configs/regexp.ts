@@ -1,5 +1,5 @@
 export const regexp = {
-  NAME: new RegExp(/^[\p{L}\s-]{5,200}$/u),
+  NAME: new RegExp(/^[\p{L}\s-]{2,200}$/u),
   PASSWD: new RegExp(
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])(?=.{8,128})/
   ),
