@@ -1,6 +1,6 @@
 import type { Request } from "express";
 import type { UploadedFile } from "express-fileupload";
-import type { StringSchema } from "joi";
+import type { AnySchema } from "joi";
 
 import { UserObject } from "../models";
 
@@ -11,7 +11,7 @@ export interface RequestExt extends Request {
 }
 
 export interface JoiValidatorsObj {
-  [prop: string]: StringSchema;
+  [prop: string]: AnySchema;
 }
 
 export interface UnknownObj {

@@ -6,7 +6,7 @@ import { RequestExt } from "../common";
 import { appConfig } from "../configs";
 import { Messages, Params, StatusCodes, UserFields } from "../constants";
 import { UserDoc } from "../models";
-import { Email, s3BucketUpload, userAvatarSharp } from "../services";
+import { Email, s3BucketUpload, imageSharper } from "../services";
 import {
   AppError,
   catchAsync,
@@ -96,7 +96,7 @@ export const uploadPhoto: RequestHandler = catchAsync(
     const { id } = req.user as UserDoc;
     const fileNameObj: FileName = fileNameBuilder("jpg", "users", id);
 
-    const sharpedPhoto: Buffer = await userAvatarSharp(photo);
+    const sharpedPhoto: Buffer = await imageSharper(photo);
     await s3BucketUpload(fileNameObj.path, photo.mimetype, sharpedPhoto);
 
     req.body.photo = fileNameObj.file;

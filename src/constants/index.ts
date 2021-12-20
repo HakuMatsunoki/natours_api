@@ -7,6 +7,7 @@ export * from "./params";
 export * from "./statusCodes";
 export * from "./tokenNames";
 export * from "./tourDifficulties";
+export * from "./tourFields";
 export * from "./userFields";
 export * from "./userRoles";
 

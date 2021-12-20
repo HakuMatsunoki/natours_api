@@ -8,7 +8,7 @@ interface Resolution {
   width: number;
 }
 
-export const userAvatarSharp = async (
+export const imageSharper = async (
   photo: UploadedFile,
   { height, width }: Resolution = {
     height: appConfig.USER_AVATAR_RESOLUTION,

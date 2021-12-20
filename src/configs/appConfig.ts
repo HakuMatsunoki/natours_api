@@ -19,6 +19,16 @@ export const appConfig = {
   TOUR_NAME_MIN_LENGTH: process.env.TOUR_NAME_MIN_LENGTH
     ? +process.env.TOUR_NAME_MIN_LENGTH
     : 10,
+  TOUR_MAX_DURATION: process.env.TOUR_MAX_DURATION
+    ? +process.env.TOUR_MAX_DURATION
+    : 30,
+  TOUR_MAX_GROUP: process.env.TOUR_MAX_GROUP ? +process.env.TOUR_MAX_GROUP : 30,
+  TOUR_SUMM_MAX_LEN: process.env.TOUR_SUMM_MAX_LEN
+    ? +process.env.TOUR_SUMM_MAX_LEN
+    : 100,
+  TOUR_DESC_MAX_LEN: process.env.TOUR_DESC_MAX_LEN
+    ? +process.env.TOUR_DESC_MAX_LEN
+    : 400,
   DEFAULT_USER_AVATAR: process.env.DEFAULT_USER_AVATAR || "default.jpg",
   USER_PASSWD_MIN_LENGTH: process.env.USER_PASSWD_MIN_LENGTH
     ? +process.env.USER_PASSWD_MIN_LENGTH

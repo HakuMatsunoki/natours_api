@@ -2,38 +2,43 @@ import { model, Schema } from "mongoose";
 import slugify from "slugify";
 
 import { appConfig } from "../configs";
-import { ModelTableNames, TourDifficulties } from "../constants";
+import {
+  LocationFields,
+  ModelTableNames,
+  TourDifficulties,
+  TourFields
+} from "../constants";
 // import { UserObject } from "./userModel";
 // import { mustHaveMsg, mustBeMsg } from "../utils";
 
 export interface TourObject {
-  name: string;
-  slug: string;
-  duration: number;
-  maxGroupSize: number;
-  difficulty: string;
-  ratingsAverage: number;
-  ratingsQuantity: number;
-  price: number;
-  priceDiscount: number;
-  summary: string;
-  description?: string;
-  imageCover: string;
-  images: Array<string>;
-  createdAt: Date;
-  startDates: Array<Date>;
-  secretTour: boolean;
-  startLocation: Location;
-  locations: Array<Location>;
-  guides: Array<Schema.Types.ObjectId>;
+  [TourFields.NAME]: string;
+  [TourFields.SLUG]: string;
+  [TourFields.DURATION]: number;
+  [TourFields.MAX_GROUP]: number;
+  [TourFields.DIFFICULTY]: string;
+  [TourFields.RAT_AVG]: number;
+  [TourFields.RAT_QNT]: number;
+  [TourFields.PRICE]: number;
+  [TourFields.DISCOUNT]: number;
+  [TourFields.SUMM]: string;
+  [TourFields.DESC]?: string;
+  [TourFields.COVER]: string;
+  [TourFields.IMGS]: Array<string>;
+  [TourFields.CREATED]: Date;
+  [TourFields.START_DATES]: Array<Date>;
+  [TourFields.SECRET]: boolean;
+  [TourFields.START_LOCATION]: Location;
+  [TourFields.LOCATIONS]: Array<Location>;
+  [TourFields.GUIDES]: Array<Schema.Types.ObjectId>;
 }
 
 export interface Location {
-  type: string;
-  coordinates: Array<number>;
-  address: string;
-  description: string;
-  day?: number;
+  [LocationFields.TYPE]: string;
+  [LocationFields.COORDS]: Array<number>;
+  [LocationFields.ADDR]: string;
+  [LocationFields.DESC]: string;
+  [LocationFields.DAY]?: number;
 }
 
 const tourSchema: Schema = new Schema<TourObject>(
