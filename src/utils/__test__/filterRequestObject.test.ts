@@ -1,10 +1,9 @@
+import stringify from "json-stable-stringify";
+
 import { filterRequestObject } from "..";
 import { JoiValidatorsObj, UnknownObj } from "../../common";
 import { UserFields } from "../../constants";
-import {
-  userRegularValidators,
-  userRequiredValidators
-} from "../../validators";
+import { userRegularValidators, userStrictValidators } from "../../validators";
 
 interface JestObj {
   obj: UnknownObj;
@@ -65,19 +64,19 @@ const testingData: JestObj[] = [
   {
     obj: { [UserFields.NAME]: "Jimi Hendrix" },
     allowedFields: [UserFields.NAME],
-    validators: userRequiredValidators,
+    validators: userStrictValidators,
     output: { [UserFields.NAME]: "Jimi Hendrix" }
   },
   {
     obj: {},
     allowedFields: [UserFields.NAME],
-    validators: userRequiredValidators,
+    validators: userStrictValidators,
     output: { error: true }
   },
   {
     obj: { [UserFields.NAME]: "Jimi Hendrix" },
     allowedFields: [UserFields.NAME, UserFields.EMAIL],
-    validators: userRequiredValidators,
+    validators: userStrictValidators,
     output: { error: true }
   },
   {
@@ -86,7 +85,7 @@ const testingData: JestObj[] = [
       [UserFields.EMAIL]: "jimi@example.com"
     },
     allowedFields: [UserFields.NAME, UserFields.EMAIL],
-    validators: userRequiredValidators,
+    validators: userStrictValidators,
     output: {
       [UserFields.NAME]: "Jimi Hendrix",
       [UserFields.EMAIL]: "jimi@example.com"
@@ -98,13 +97,13 @@ const testingData: JestObj[] = [
       [UserFields.EMAIL]: "jimi@example.com"
     },
     allowedFields: [UserFields.NAME],
-    validators: userRequiredValidators,
+    validators: userStrictValidators,
     output: { error: true }
   },
   {
     obj: { [UserFields.NAME]: "Jimi Hendrix", wrongProp: "wrong" },
     allowedFields: [UserFields.NAME],
-    validators: userRequiredValidators,
+    validators: userStrictValidators,
     output: { error: true }
   }
 ];
@@ -119,9 +118,7 @@ describe("Test utils", () => {
           item.validators
         );
 
-        expect(JSON.stringify(filteredRequest)).toBe(
-          JSON.stringify(item.output)
-        );
+        expect(stringify(filteredRequest)).toBe(stringify(item.output));
       } catch (_err) {
         expect(item.output.error).toBe(true);
       }

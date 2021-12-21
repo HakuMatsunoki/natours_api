@@ -25,10 +25,20 @@ export const appConfig = {
   TOUR_MAX_GROUP: process.env.TOUR_MAX_GROUP ? +process.env.TOUR_MAX_GROUP : 30,
   TOUR_SUMM_MAX_LEN: process.env.TOUR_SUMM_MAX_LEN
     ? +process.env.TOUR_SUMM_MAX_LEN
-    : 100,
+    : 200,
   TOUR_DESC_MAX_LEN: process.env.TOUR_DESC_MAX_LEN
     ? +process.env.TOUR_DESC_MAX_LEN
-    : 400,
+    : 2000,
+  TOUR_DEFAULT_NAME: process.env.TOUR_DEFAULT_NAME || "New Tour",
+  LOCATION_ADDR_MAX_LEN: process.env.LOCATION_ADDR_MAX_LEN
+    ? +process.env.LOCATION_ADDR_MAX_LEN
+    : 100,
+  LOCATION_DESC_MAX_LEN: process.env.LOCATION_DESC_MAX_LEN
+    ? +process.env.LOCATION_DESC_MAX_LEN
+    : 50,
+  LOCATION_DAY_MAX: process.env.LOCATION_DAY_MAX
+    ? +process.env.LOCATION_DAY_MAX
+    : 31,
   DEFAULT_USER_AVATAR: process.env.DEFAULT_USER_AVATAR || "default.jpg",
   USER_PASSWD_MIN_LENGTH: process.env.USER_PASSWD_MIN_LENGTH
     ? +process.env.USER_PASSWD_MIN_LENGTH

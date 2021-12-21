@@ -1,16 +1,20 @@
 import { RequestHandler } from "express";
-import { UploadedFile } from "express-fileupload";
+// import { UploadedFile } from "express-fileupload";
 
-import { RequestExt } from "../common";
-import { appConfig } from "../configs";
-import { Messages, StatusCodes, TourFields } from "../constants";
-import { UserDoc } from "../models";
-import { s3BucketUpload, imageSharper } from "../services";
+// import { RequestExt } from "../common";
+// import { appConfig } from "../configs";
 import {
-  AppError,
-  catchAsync,
-  fileNameBuilder,
-  FileName,
+  // Messages, StatusCodes,
+  LocationFields,
+  TourFields
+} from "../constants";
+// import { UserDoc } from "../models";
+// import { s3BucketUpload, imageSharper } from "../services";
+import {
+  // AppError,
+  // catchAsync,
+  // fileNameBuilder,
+  // FileName,
   filterRequestObject
 } from "../utils";
 import {
@@ -19,15 +23,15 @@ import {
   // userStrictValidators
 } from "../validators";
 
-// "name": "The TEST Tour",
-//         "duration": 1,
-//         "maxGroupSize": 1,
-//         "difficulty": "difficult",
-//         "price": 1200,
-//         "summary": "Test tour",
-//         "imageCover": "tour-3-cover.jpg"
+interface Location {
+  [LocationFields.TYPE]?: string;
+  [LocationFields.COORDS]?: number[];
+  [LocationFields.DESC]?: string;
+  [LocationFields.DAY]?: number;
+  [LocationFields.ADDR]?: string;
+}
 
-export const filterCreateTourObject: RequestHandler = (req, _res, _next) => {
+export const filterCreateTourObject: RequestHandler = (req, _res, next) => {
   const allowedFields: string[] = [
     TourFields.NAME,
     TourFields.DURATION,
@@ -40,7 +44,7 @@ export const filterCreateTourObject: RequestHandler = (req, _res, _next) => {
     TourFields.START_LOCATION,
     TourFields.LOCATIONS,
     TourFields.SECRET,
-    TourFields.GUIDES 
+    TourFields.GUIDES
   ];
   req.body = filterRequestObject(
     req.body,
@@ -48,9 +52,17 @@ export const filterCreateTourObject: RequestHandler = (req, _res, _next) => {
     tourRegularValidators
   );
 
-  console.log(req.body);
+  if (req.body.locations) {
+    req.body.locations.forEach((location: Location) => {
+      location[LocationFields.TYPE] = "Point";
+    });
+  }
 
-  // next();
+  if (req.body.startLocation) {
+    req.body.startLocation[LocationFields.TYPE] = "Point";
+  }
+
+  next();
 };
 
 // export const filterUpdateTourObject: RequestHandler = (req, _res, next) => {
@@ -64,43 +76,43 @@ export const filterCreateTourObject: RequestHandler = (req, _res, _next) => {
 //   next();
 // };
 
-export const checkUserPhoto: RequestHandler = (req: RequestExt, _res, next) => {
-  const photo: UploadedFile | UploadedFile[] | undefined = req.files?.photo;
+// export const checkUserPhoto: RequestHandler = (req: RequestExt, _res, next) => {
+//   const photo: UploadedFile | UploadedFile[] | undefined = req.files?.photo;
 
-  if (!photo) return next();
+//   if (!photo) return next();
 
-  if (Array.isArray(photo))
-    return next(
-      new AppError(Messages.FILE_NOT_SINGLE, StatusCodes.BAD_REQUEST)
-    );
+//   if (Array.isArray(photo))
+//     return next(
+//       new AppError(Messages.FILE_NOT_SINGLE, StatusCodes.BAD_REQUEST)
+//     );
 
-  if (photo.size > appConfig.USER_AVATAR_MAX_SIZE)
-    return next(new AppError(Messages.FILE_LARGE, StatusCodes.BAD_REQUEST));
+//   if (photo.size > appConfig.USER_AVATAR_MAX_SIZE)
+//     return next(new AppError(Messages.FILE_LARGE, StatusCodes.BAD_REQUEST));
 
-  const fileType: string = photo.mimetype;
+//   const fileType: string = photo.mimetype;
 
-  if (!fileType.includes("image"))
-    return next(new AppError(Messages.FILE_INVALID, StatusCodes.BAD_REQUEST));
+//   if (!fileType.includes("image"))
+//     return next(new AppError(Messages.FILE_INVALID, StatusCodes.BAD_REQUEST));
 
-  req.photo = photo;
+//   req.photo = photo;
 
-  next();
-};
+//   next();
+// };
 
-export const uploadPhoto: RequestHandler = catchAsync(
-  async (req: RequestExt, _res, next) => {
-    const photo = req.photo as UploadedFile;
+// export const uploadPhoto: RequestHandler = catchAsync(
+//   async (req: RequestExt, _res, next) => {
+//     const photo = req.photo as UploadedFile;
 
-    if (!photo) return next();
+//     if (!photo) return next();
 
-    const { id } = req.user as UserDoc;
-    const fileNameObj: FileName = fileNameBuilder("jpg", "users", id);
+//     const { id } = req.user as UserDoc;
+//     const fileNameObj: FileName = fileNameBuilder("jpg", "users", id);
 
-    const sharpedPhoto: Buffer = await imageSharper(photo);
-    await s3BucketUpload(fileNameObj.path, photo.mimetype, sharpedPhoto);
+//     const sharpedPhoto: Buffer = await imageSharper(photo);
+//     await s3BucketUpload(fileNameObj.path, photo.mimetype, sharpedPhoto);
 
-    req.body.photo = fileNameObj.file;
+//     req.body.photo = fileNameObj.file;
 
-    next();
-  }
-);
+//     next();
+//   }
+// );
