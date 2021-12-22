@@ -98,8 +98,7 @@ const tourSchema: Schema = new Schema<TourObject>(
       trim: true
     },
     imageCover: {
-      type: String,
-      required: true
+      type: String
     },
     images: [String],
     createdAt: {

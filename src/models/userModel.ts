@@ -80,18 +80,25 @@ userSchema.pre("save", function (next): void {
 });
 
 userSchema.pre(/^find/, function (next): void {
-  this.find({ active: { $ne: false } });
+  this.find({
+    active: { $ne: false },
+  }).select("-__v -passwdResetExpires -passwdResetToken");
 
   next();
 });
 
-userSchema.methods.checkPasswd = async function (candidatePasswd: string): Promise<boolean> {
+userSchema.methods.checkPasswd = async function (
+  candidatePasswd: string
+): Promise<boolean> {
   return await bcrypt.compare(candidatePasswd, this.passwd);
 };
 
 // maybe not necessary
-userSchema.methods.changedPasswdAfter = function (JWTTimestamp: number): boolean {
-  if (this.passwdChangedAt) return JWTTimestamp < this.passwdChangedAt.getTime() / 1000;
+userSchema.methods.changedPasswdAfter = function (
+  JWTTimestamp: number
+): boolean {
+  if (this.passwdChangedAt)
+    return JWTTimestamp < this.passwdChangedAt.getTime() / 1000;
 
   return false;
 };
@@ -100,9 +107,13 @@ userSchema.methods.createPasswdResetToken = function (): string {
   const resetToken: string = crypto
     .randomBytes(appConfig.PASSWD_RESET_TOKEN_LENGTH)
     .toString("hex");
-  this.passwdResetToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+  this.passwdResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
 
-  this.passwdResetExpires = Date.now() + appConfig.PASSWD_RESET_TOKEN_EXPIRES_IN * 60 * 1000;
+  this.passwdResetExpires =
+    Date.now() + appConfig.PASSWD_RESET_TOKEN_EXPIRES_IN * 60 * 1000;
 
   return resetToken;
 };

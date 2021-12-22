@@ -29,7 +29,13 @@ export const appConfig = {
   TOUR_DESC_MAX_LEN: process.env.TOUR_DESC_MAX_LEN
     ? +process.env.TOUR_DESC_MAX_LEN
     : 2000,
-  TOUR_DEFAULT_NAME: process.env.TOUR_DEFAULT_NAME || "New Tour",
+  TOUR_DEFAULT_NAME: process.env.TOUR_DEFAULT_NAME || "New Awesome Tour",
+  TOUR_IMG_HEIGHT: process.env.TOUR_IMG_HEIGHT
+    ? +process.env.TOUR_IMG_HEIGHT
+    : 900,
+  TOUR_IMG_WIDTH: process.env.TOUR_IMG_WIDTH
+    ? +process.env.TOUR_IMG_WIDTH
+    : 1440,
   LOCATION_ADDR_MAX_LEN: process.env.LOCATION_ADDR_MAX_LEN
     ? +process.env.LOCATION_ADDR_MAX_LEN
     : 100,
@@ -48,8 +54,8 @@ export const appConfig = {
   RATING_DEFAULT: process.env.RATING_DEFAULT
     ? +process.env.RATING_DEFAULT
     : 4.5,
-  USER_AVATAR_MAX_SIZE: process.env.USER_AVATAR_MAX_SIZE
-    ? +process.env.USER_AVATAR_MAX_SIZE * 1024 * 1024
+  IMG_MAX_SIZE: process.env.IMG_MAX_SIZE
+    ? +process.env.IMG_MAX_SIZE * 1024 * 1024
     : 10 * 1024 * 1024,
   USER_AVATAR_RESOLUTION: process.env.USER_AVATAR_RESOLUTION
     ? +process.env.USER_AVATAR_RESOLUTION

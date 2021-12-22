@@ -45,12 +45,16 @@ router
   .route("/:id")
   .get(tourController.getTour)
   .patch(
+    tourMiddleware.checkTourId,
     authMiddleware.protectRoute,
     authMiddleware.restrictTo(UserRoles.ADMIN, UserRoles.LEAD_GUIDE),
-    //TODO: upload tour images
+    tourMiddleware.filterUpdateTourObject,
+    tourMiddleware.checkTourImage,
+    tourMiddleware.uploadImage,
     tourController.updateTour
   )
   .delete(
+    tourMiddleware.checkTourId,
     authMiddleware.protectRoute,
     authMiddleware.restrictTo(UserRoles.ADMIN, UserRoles.LEAD_GUIDE),
     tourController.deleteTour

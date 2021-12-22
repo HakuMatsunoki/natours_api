@@ -12,7 +12,8 @@ import {
   catchAsync,
   fileNameBuilder,
   FileName,
-  filterRequestObject
+  filterRequestObject,
+  imageCheckHelper
 } from "../utils";
 import {
   paramsValidators,
@@ -74,13 +75,9 @@ export const checkUserPhoto: RequestHandler = (req: RequestExt, _res, next) => {
       new AppError(Messages.FILE_NOT_SINGLE, StatusCodes.BAD_REQUEST)
     );
 
-  if (photo.size > appConfig.USER_AVATAR_MAX_SIZE)
-    return next(new AppError(Messages.FILE_LARGE, StatusCodes.BAD_REQUEST));
+  const error: AppError | undefined = imageCheckHelper(photo);
 
-  const fileType: string = photo.mimetype;
-
-  if (!fileType.includes("image"))
-    return next(new AppError(Messages.FILE_INVALID, StatusCodes.BAD_REQUEST));
+  if (error) return next(error);
 
   req.photo = photo;
 
@@ -99,7 +96,7 @@ export const uploadPhoto: RequestHandler = catchAsync(
     const sharpedPhoto: Buffer = await imageSharper(photo);
     await s3BucketUpload(fileNameObj.path, photo.mimetype, sharpedPhoto);
 
-    req.body.photo = fileNameObj.file;
+    req.body.photo = fileNameObj.path;
 
     next();
   }
